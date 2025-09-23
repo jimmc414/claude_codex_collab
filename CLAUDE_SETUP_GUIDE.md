@@ -95,13 +95,13 @@ init                    # Start new project with Claude Code
 ```
 /help                   # Show all available commands
 /status                 # Check current setup
-/shell <command>        # Execute shell commands
-/generate <request>     # Generate new files/code
-/edit <file>           # Edit existing files
-/test                   # Run tests
-/commit <message>       # Commit changes
-/push                   # Push to GitHub
-/pr                     # Create pull request
+!<command>              # Execute bash/shell commands
+/generate <request>     # Generate new files/code (may vary)
+/edit <file>           # Edit existing files (may vary)
+/test                   # Run tests (may vary)
+!git commit -m "msg"    # Commit changes
+!git push               # Push to GitHub
+/pr                     # Create pull request (may vary)
 ```
 
 ### Custom Project Commands
@@ -109,14 +109,16 @@ init                    # Start new project with Claude Code
 /project:github         # Upload to GitHub (public) and setup Actions
 /project:github-private # Upload to GitHub (private) and setup Actions
 /project:describe       # Update repository description
+/project:push           # Quick commit and push all changes
 ```
 
-### Shell Functions (via /shell in Claude)
+### Bash Functions (via ! in Claude Code)
 ```
-/shell gh-upload        # Create and push to public GitHub repo
-/shell gh-upload-private # Create and push to private GitHub repo
-/shell gh-describe "description" # Update repo description
-/shell gh-info          # Show repository information
+!gh-upload              # Create and push to public GitHub repo
+!gh-upload-private      # Create and push to private GitHub repo
+!gh-describe "description" # Update repo description
+!gh-info                # Show repository information
+!git add . && git commit -m "msg" && git push  # Quick commit and push
 ```
 
 ## File Structure
