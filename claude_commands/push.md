@@ -2,9 +2,22 @@
 description: Quick commit and push to GitHub
 ---
 
-To quickly commit and push all changes:
+Execute the git push process:
+```bash
+# Check if there are changes to commit
+if git diff --quiet && git diff --cached --quiet && [ -z "$(git ls-files --others --exclude-standard)" ]; then
+    echo "✅ No changes to push. Repository is up to date."
+else
+    # Add all changes
+    git add .
 
-!git add . && git commit -m "Update files" && git push
+    # Get a simple commit message or use default
+    commit_msg="${1:-Update files}"
 
-Or with a custom message:
-!git add . && git commit -m "Your commit message here" && git push
+    # Commit and push
+    git commit -m "$commit_msg"
+    git push
+
+    echo "✅ Successfully pushed changes to GitHub!"
+fi
+```
