@@ -34,10 +34,13 @@ This project is configured with a complete Claude Code development environment i
 
 - **`gh-info`**: Displays current repository information
 
-#### Claude Code Custom Commands (in /mnt/c/python/.claude/commands/)
-- **`/project:github`**: Complete GitHub setup workflow (public)
-- **`/project:github-private`**: Complete GitHub setup workflow (private)
-- **`/project:describe`**: Update repository description
+#### Claude Code Custom Commands (in ~/.claude/commands/)
+- **`/github`**: Complete GitHub setup workflow (public)
+- **`/github-private`**: Complete GitHub setup workflow (private) 
+- **`/describe`**: Update repository description interactively
+- **`/push`**: Quick commit and push all changes
+- **`/pull`**: Fetch and merge latest changes from GitHub
+- **`/sync`**: Pull latest, then commit and push changes
 
 ### 3. GitHub Integration
 - GitHub Actions workflow installed
@@ -51,20 +54,20 @@ This project is configured with a complete Claude Code development environment i
 2. Claude Code launches in the project directory
 3. Claude has access to:
    - All files in the current directory
-   - Shell commands via `/shell`
+   - Bash commands via `!` prefix
    - Git operations
-   - Project-specific commands in `.claude/commands/`
+   - Global commands in `~/.claude/commands/`
 
 ### Creating Files and Code
 Claude can:
 - Generate new files with `/generate` command
 - Edit existing files
 - Run tests and debug code
-- Execute shell commands for package installation
+- Execute bash commands with `!` prefix
 - Commit changes to git
 
 ### GitHub Integration Workflow
-When user runs `/project:github`:
+When user runs `/github`:
 1. Claude executes `gh-upload` function via shell
 2. Repository is created and code is pushed
 3. User is prompted to run `/install-github-app`
@@ -104,31 +107,42 @@ init                    # Start new project with Claude Code
 /pr                     # Create pull request (may vary)
 ```
 
-### Custom Project Commands
+### Custom Project Commands (Global: ~/.claude/commands/)
 ```
-/project:github         # Upload to GitHub (public) and setup Actions
-/project:github-private # Upload to GitHub (private) and setup Actions
-/project:describe       # Update repository description
-/project:push           # Quick commit and push all changes
+/github         # Full bash script to create public repo and setup Actions
+/github-private # Uses gh-upload-private for private repo
+/describe       # Interactive prompt for updating repo description
+/push           # Quick commit and push using !git commands
+/pull           # Fetch and merge latest changes from GitHub
+/sync           # Pull latest, then commit and push changes
 ```
 
-### Bash Functions (via ! in Claude Code)
+### Bash Functions (via ! in Claude Code or /shell)
 ```
 !gh-upload              # Create and push to public GitHub repo
-!gh-upload-private      # Create and push to private GitHub repo
+!gh-upload-private      # Create and push to private GitHub repo  
 !gh-describe "description" # Update repo description
 !gh-info                # Show repository information
 !git add . && git commit -m "msg" && git push  # Quick commit and push
+
+Note: Some commands may use /shell instead of ! depending on context
 ```
 
 ## File Structure
 ```
-/mnt/c/python/
+~/                       # Linux home directory
+├── .bashrc              # Custom bash functions
 ├── .claude/
 │   └── commands/       # Global Claude Code commands
 │       ├── github.md
 │       ├── github-private.md
-│       └── describe.md
+│       ├── describe.md
+│       ├── push.md
+│       ├── pull.md
+│       └── sync.md
+└── .local/bin/claude   # Claude Code binary
+
+/mnt/c/python/
 ├── claude_codex_collab/  # This project
 │   ├── .git/
 │   ├── .github/
@@ -168,6 +182,7 @@ init                    # Start new project with Claude Code
 - **Permission errors**: The `--dangerously-skip-permissions` flag handles most WSL permission issues
 - **Slow file operations**: Normal when working in `/mnt/c/` - consider moving to WSL filesystem
 - **GitHub auth issues**: Run `gh auth status` and re-authenticate if needed
+- **Commands not found**: Ensure Claude Code is restarted after adding new commands to `~/.claude/commands/`
 
 ### Reset Commands
 ```bash
@@ -184,16 +199,17 @@ claude doctor
 
 ## Environment Variables
 The following are configured:
-- `PATH`: Includes `~/.local/bin` and `~/.npm-global/bin`
+- `PATH`: Includes `~/.local/bin` (Claude Code binary) and `~/.npm-global/bin`
 - Conda environment: `llm` (activated via `init`)
 - Git autocrlf: Set to `input` for cross-platform compatibility
 
 ## Next Steps
 1. Create new projects with `init`
 2. Use Claude for development assistance
-3. Push to GitHub with `/project:github`
-4. Let Claude handle PR reviews
-5. Iterate and improve with AI assistance
+3. Push to GitHub with `/github`
+4. Sync changes with `/pull` and `/push`
+5. Let Claude handle PR reviews
+6. Iterate and improve with AI assistance
 
 ---
 
