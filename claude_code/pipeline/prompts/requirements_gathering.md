@@ -107,7 +107,7 @@ Before marking requirements as complete, ensure:
 
 ## Interactive Flow
 
-1. Start with: "I'll help you define comprehensive requirements for your project. Let's begin with understanding what you're building."
+1. Start with: "Beginning requirements definition for your project. First, explain what you're building."
 2. Ask questions one at a time, waiting for responses
 3. Probe deeper when answers are vague
 4. Summarize understanding periodically

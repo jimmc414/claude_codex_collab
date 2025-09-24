@@ -73,21 +73,21 @@ def generate_matrix(req_file: str, arch_file: str, impl_file: str, src_dir: str)
         description = desc_match.group(1).strip()[:50] if desc_match else "N/A"
 
         # Check presence in each artifact
-        in_arch = "✅" if find_references(arch_content, req_id) else "❌"
-        in_impl = "✅" if find_references(impl_content, req_id) else "❌"
+        in_arch = "PASS" if find_references(arch_content, req_id) else "FAIL"
+        in_impl = "PASS" if find_references(impl_content, req_id) else "FAIL"
 
         # Check in code
         code_files = scan_code_files(src_path, req_id)
-        in_code = ", ".join(code_files[:3]) if code_files else "❌"
+        in_code = ", ".join(code_files[:3]) if code_files else "FAIL"
 
         # Determine status
-        if in_arch == "✅" and in_impl == "✅" and code_files:
-            status = "✅ Complete"
+        if in_arch == "PASS" and in_impl == "PASS" and code_files:
+            status = "COMPLETE"
             fully_traced += 1
-        elif in_arch == "✅" or in_impl == "✅" or code_files:
-            status = "⚠️ Partial"
+        elif in_arch == "PASS" or in_impl == "PASS" or code_files:
+            status = "PARTIAL"
         else:
-            status = "❌ Missing"
+            status = "MISSING"
 
         print(f"| {req_id} | {description} | {in_arch} | {in_impl} | {in_code} | {status} |")
 

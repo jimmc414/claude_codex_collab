@@ -54,7 +54,7 @@ jobs:
         if: always()
         run: |
           find . -name "*.py" -not -path "./.github/*" | xargs -r pylint --output-format=json > pylint_report.json || true
-          python .github/review-scripts/format_lint_report.py pylint_report.json
+          python .github/scripts/claude/format_lint_report.py pylint_report.json
 
       - name: Python Formatting Check
         if: always()
@@ -91,11 +91,11 @@ jobs:
 
       - name: Check Implementation Alignment
         run: |
-          python .github/review-scripts/code_alignment.py docs/implementation.md src/
+          python .github/scripts/claude/code_alignment.py shared/docs/implementation.md src/
 
       - name: Generate Code Metrics
         run: |
-          python .github/review-scripts/code_metrics.py src/ > metrics_report.json
+          python .github/scripts/claude/code_metrics.py src/ > metrics_report.json
 
       - name: Post Review Comments
         if: always()
@@ -104,18 +104,18 @@ jobs:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const fs = require('fs');
-            let comment = '## 🔍 Code Review Report\n\n';
+            let comment = '## **CODE REVIEW** Code Review Report\n\n';
             let hasFailures = false;
 
             // Linting Results
             if (fs.existsSync('lint_summary.json')) {
               const lintSummary = JSON.parse(fs.readFileSync('lint_summary.json', 'utf8'));
               if (lintSummary.issues > 0) {
-                comment += `### ⚠️ Linting Issues: ${lintSummary.issues}\n`;
+                comment += `### **WARNING** Linting Issues: ${lintSummary.issues}\n`;
                 comment += lintSummary.details.slice(0, 10).map(d => `- ${d}`).join('\n') + '\n\n';
                 hasFailures = true;
               } else {
-                comment += '### ✅ Linting: Passed\n\n';
+                comment += '### **PASS** Linting: Passed\n\n';
               }
             }
 
@@ -123,11 +123,11 @@ jobs:
             if (fs.existsSync('black_report.txt')) {
               const blackReport = fs.readFileSync('black_report.txt', 'utf8');
               if (blackReport.includes('would be reformatted')) {
-                comment += '### ⚠️ Formatting Issues Found\n';
+                comment += '### **WARNING** Formatting Issues Found\n';
                 comment += 'Run `black .` to fix formatting\n\n';
                 hasFailures = true;
               } else {
-                comment += '### ✅ Formatting: Passed\n\n';
+                comment += '### **PASS** Formatting: Passed\n\n';
               }
             }
 
@@ -135,10 +135,10 @@ jobs:
             if (fs.existsSync('mypy_report/index.json')) {
               const mypyReport = JSON.parse(fs.readFileSync('mypy_report/index.json', 'utf8'));
               if (mypyReport.errors > 0) {
-                comment += `### ⚠️ Type Errors: ${mypyReport.errors}\n\n`;
+                comment += `### **WARNING** Type Errors: ${mypyReport.errors}\n\n`;
                 hasFailures = true;
               } else {
-                comment += '### ✅ Type Checking: Passed\n\n';
+                comment += '### **PASS** Type Checking: Passed\n\n';
               }
             }
 
@@ -146,7 +146,7 @@ jobs:
             if (fs.existsSync('coverage.json')) {
               const coverage = JSON.parse(fs.readFileSync('coverage.json', 'utf8'));
               const percent = coverage.totals.percent_covered;
-              const emoji = percent >= 80 ? '✅' : percent >= 60 ? '⚠️' : '❌';
+              const emoji = percent >= 80 ? '**PASS**' : percent >= 60 ? '**WARNING**' : '**FAIL**';
               comment += `### ${emoji} Test Coverage: ${percent.toFixed(1)}%\n\n`;
               if (percent < 80) {
                 hasFailures = true;
@@ -157,7 +157,7 @@ jobs:
             if (fs.existsSync('bandit_report.json')) {
               const banditReport = JSON.parse(fs.readFileSync('bandit_report.json', 'utf8'));
               if (banditReport.results.length > 0) {
-                comment += `### 🔒 Security Issues: ${banditReport.results.length}\n`;
+                comment += `### **SECURITY** Security Issues: ${banditReport.results.length}\n`;
                 banditReport.results.slice(0, 5).forEach(r => {
                   comment += `- ${r.issue_text} (${r.severity})\n`;
                 });
@@ -166,14 +166,14 @@ jobs:
                   hasFailures = true;
                 }
               } else {
-                comment += '### ✅ Security: No issues found\n\n';
+                comment += '### **PASS** Security: No issues found\n\n';
               }
             }
 
             // Code Metrics
             if (fs.existsSync('metrics_report.json')) {
               const metrics = JSON.parse(fs.readFileSync('metrics_report.json', 'utf8'));
-              comment += '### 📊 Code Metrics\n';
+              comment += '### **METRICS** Code Metrics\n';
               comment += `- Lines of Code: ${metrics.loc}\n`;
               comment += `- Cyclomatic Complexity: ${metrics.complexity}\n`;
               comment += `- Maintainability Index: ${metrics.maintainability}\n\n`;
@@ -182,7 +182,7 @@ jobs:
             // Implementation Alignment
             if (fs.existsSync('alignment_report.json')) {
               const alignment = JSON.parse(fs.readFileSync('alignment_report.json', 'utf8'));
-              comment += `### 📋 Implementation Alignment: ${alignment.percentage}%\n`;
+              comment += `### **CHECKLIST** Implementation Alignment: ${alignment.percentage}%\n`;
               if (alignment.missing.length > 0) {
                 comment += 'Missing implementations:\n';
                 comment += alignment.missing.map(m => `- ${m}`).join('\n') + '\n';

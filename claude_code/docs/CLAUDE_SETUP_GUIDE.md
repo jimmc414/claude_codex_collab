@@ -209,7 +209,7 @@ The following are configured:
 3. Push to GitHub with `/github`
 4. Sync changes with `/pull` and `/push`
 5. Let Claude handle PR reviews
-6. Iterate and improve with AI assistance
+6. Iterate and improve with automated assistance
 
 ---
 

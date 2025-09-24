@@ -30,7 +30,7 @@ This pipeline provides a systematic approach to software development using Claud
 **Start the conversation with Claude:**
 ```
 User: "I want to build a task management application"
-Claude: "I'll help you define comprehensive requirements for your project. Let me read the requirements gathering template and begin our discussion."
+Claude: "Beginning requirements definition for your project. Reading the requirements gathering template to start the discussion."
 ```
 
 Claude will:
@@ -50,7 +50,7 @@ Claude will:
 **Continue with:**
 ```
 User: "Now let's design the architecture"
-Claude: "I'll read the requirements and create a comprehensive architecture design."
+Claude: "Reading the requirements to create a comprehensive architecture design."
 ```
 
 Claude will:
@@ -73,7 +73,7 @@ Claude will:
 **Proceed with:**
 ```
 User: "Create the implementation plan"
-Claude: "I'll create a detailed implementation plan based on the architecture."
+Claude: "Creating a detailed implementation plan based on the architecture."
 ```
 
 Claude will:
@@ -95,7 +95,7 @@ Claude will:
 **Begin coding:**
 ```
 User: "Start implementing the code"
-Claude: "I'll begin implementing based on our plan. I'll use the TodoWrite tool to track progress."
+Claude: "Beginning implementation based on the plan. Using TodoWrite tool to track progress."
 ```
 
 Claude will:
@@ -117,7 +117,7 @@ Claude will:
 **Complete the pipeline:**
 ```
 User: "Run the final review"
-Claude: "I'll perform a comprehensive review to ensure everything meets our requirements."
+Claude: "Performing comprehensive review to ensure all requirements are met."
 ```
 
 Claude will:
@@ -135,7 +135,7 @@ Claude will:
 User: "Start new project: [project name]"
 Claude: *Creates feature branch*
         *Reads requirements gathering prompt*
-        "I'll help you define comprehensive requirements for [project name].
+        "Beginning requirements definition for [project name].
          Let's begin with understanding what you're building."
 ```
 
@@ -146,11 +146,11 @@ User: "Show pipeline status"
 Claude: *Checks GitHub Actions status*
         *Reviews PR comments*
         "Current status:
-         ✅ Requirements: Passed
-         ✅ Architecture: Passed
-         🔄 Implementation: In Progress
-         ⏸️ Code Review: Pending
-         ⏸️ Final Review: Pending"
+         [PASS] Requirements: Passed
+         [PASS] Architecture: Passed
+         [IN PROGRESS] Implementation: In Progress
+         [PENDING] Code Review: Pending
+         [PENDING] Final Review: Pending"
 ```
 
 ### Handling Feedback
@@ -162,7 +162,7 @@ Claude: "The requirements review found issues:
          - Missing acceptance criteria for FR-3
          - NFR-2 lacks measurable metrics
 
-         I'll fix these issues now..."
+         Fixing these issues now..."
 *Updates requirements.md*
 *Pushes changes*
 "Fixed and pushed. Waiting for re-review..."
@@ -302,7 +302,7 @@ gh pr view --comments
 User: "The architecture review is failing"
 Claude: *Checks action logs*
         "I see the issue - missing diagram in section 3.
-         Let me add that now..."
+         Adding that now..."
 ```
 
 ### Issue: Low Test Coverage
@@ -310,10 +310,10 @@ Claude: *Checks action logs*
 ```markdown
 User: "Test coverage is only 65%"
 Claude: *Analyzes coverage report*
-        "I'll add tests for uncovered functions:
+        "Adding tests for uncovered functions:
          - UserService.delete()
          - AuthMiddleware.validate()
-         Let me implement these tests..."
+         Implementing these tests..."
 ```
 
 ### Issue: Requirements Not Clear
@@ -366,7 +366,7 @@ Claude: "I'll coordinate across repositories:
 ```markdown
 User: "Let's build a URL shortener service"
 
-Claude: "I'll help you build a URL shortener using our development pipeline.
+Claude: "Building a URL shortener using the development pipeline.
          Starting with requirements gathering...
 
          What's the expected daily traffic volume?"
@@ -380,12 +380,12 @@ User: "Public users and registered users with analytics"
 [... continues through all phases ...]
 
 Claude: "Pipeline complete!
-         ✅ Requirements documented
-         ✅ Architecture designed
-         ✅ Implementation planned
-         ✅ Code implemented
-         ✅ All tests passing (92% coverage)
-         ✅ Quality score: 94/100
+         [COMPLETE] Requirements documented
+         [COMPLETE] Architecture designed
+         [COMPLETE] Implementation planned
+         [COMPLETE] Code implemented
+         [COMPLETE] All tests passing (92% coverage)
+         [COMPLETE] Quality score: 94/100
 
          PR #47 has been auto-approved and is ready to merge."
 ```

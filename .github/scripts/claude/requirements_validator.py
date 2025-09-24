@@ -187,7 +187,7 @@ def main():
     # Generate markdown report
     with open("requirements_report.md", "w") as f:
         f.write("### Requirements Validation Report\n\n")
-        f.write(f"**Status:** {'✅ Passed' if result['passed'] else '❌ Failed'}\n\n")
+        f.write(f"**Status:** {'PASSED' if result['passed'] else 'FAILED'}\n\n")
 
         if result['issues']:
             f.write("**Issues:**\n")

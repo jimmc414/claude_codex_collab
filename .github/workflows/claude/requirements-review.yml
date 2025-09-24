@@ -3,13 +3,14 @@ name: Requirements Review
 on:
   push:
     paths:
-      - 'docs/requirements.md'
+      - 'shared/docs/requirements.md'
     branches:
       - 'feature/**'
+      - 'claude/**'
       - 'develop'
   pull_request:
     paths:
-      - 'docs/requirements.md'
+      - 'shared/docs/requirements.md'
 
 jobs:
   validate-requirements:
@@ -31,7 +32,14 @@ jobs:
       - name: Validate Requirements Document
         id: validate
         run: |
-          python .github/review-scripts/requirements_validator.py docs/requirements.md
+          if [ -f "shared/docs/requirements.md" ]; then
+            python .github/scripts/claude/requirements_validator.py shared/docs/requirements.md
+          elif [ -f "shared/docs/requirements.md" ]; then
+            python .github/scripts/claude/requirements_validator.py shared/docs/requirements.md
+          else
+            echo "Requirements file not found"
+            exit 1
+          fi
 
       - name: Post Review Comments
         if: always()
@@ -46,8 +54,8 @@ jobs:
 
             if (context.payload.pull_request) {
               const comment = reviewOutput.passed
-                ? '✅ **Requirements Review Passed**\n\nAll requirements criteria met.'
-                : `❌ **Requirements Review Failed**\n\n**Issues found:**\n${reviewOutput.issues.map(i => `- ${i}`).join('\n')}`;
+                ? '**PASS** **Requirements Review Passed**\n\nAll requirements criteria met.'
+                : `**FAIL** **Requirements Review Failed**\n\n**Issues found:**\n${reviewOutput.issues.map(i => `- ${i}`).join('\n')}`;
 
               await github.rest.issues.createComment({
                 issue_number: context.payload.pull_request.number,
@@ -63,7 +71,13 @@ jobs:
 
       - name: Check Requirements Coverage
         run: |
-          python .github/review-scripts/requirements_coverage.py docs/requirements.md
+          if [ -f ".github/scripts/claude/requirements_coverage.py" ]; then
+            if [ -f "shared/docs/requirements.md" ]; then
+              python .github/scripts/claude/requirements_coverage.py shared/docs/requirements.md
+            elif [ -f "shared/docs/requirements.md" ]; then
+              python .github/scripts/claude/requirements_coverage.py shared/docs/requirements.md
+            fi
+          fi
 
       - name: Generate Requirements Report
         if: success()

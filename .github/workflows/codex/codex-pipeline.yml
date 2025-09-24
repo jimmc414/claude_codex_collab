@@ -1,0 +1,49 @@
+# Codex Pipeline Workflow Template
+name: Codex Pipeline Review
+
+on:
+  push:
+    branches:
+      - 'codex/**'
+  pull_request:
+    branches:
+      - 'main'
+      - 'develop'
+    paths:
+      - 'codex/**'
+      - 'shared/**'
+
+jobs:
+  codex-review:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Environment
+        run: |
+          echo "Setting up Codex environment..."
+          # Add Codex-specific setup here
+
+      - name: Run Codex Pipeline
+        run: |
+          echo "Codex pipeline execution placeholder"
+          # Add Codex-specific pipeline steps here
+
+      - name: Post Results
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const comment = '**Codex Pipeline**: Review placeholder';
+
+            if (context.payload.pull_request) {
+              await github.rest.issues.createComment({
+                issue_number: context.payload.pull_request.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            }

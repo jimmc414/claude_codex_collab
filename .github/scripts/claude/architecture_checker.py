@@ -189,7 +189,7 @@ def main():
     # Generate markdown report
     with open("architecture_report.md", "w") as f:
         f.write("### Architecture Validation Report\n\n")
-        f.write(f"**Status:** {'✅ Passed' if result['passed'] else '❌ Failed'}\n")
+        f.write(f"**Status:** {'PASSED' if result['passed'] else 'FAILED'}\n")
         f.write(f"**Requirements Alignment:** {result['alignment']}%\n\n")
 
         if result['issues']:

@@ -10,48 +10,48 @@ pipeline:
 phases:
   requirements:
     name: "Requirements Gathering"
-    prompt_template: "prompts/requirements_gathering.md"
-    output_file: "docs/requirements.md"
-    github_action: "requirements-review.yml"
+    prompt_template: "claude_code/pipeline/prompts/requirements_gathering.md"
+    output_file: "shared/docs/requirements.md"
+    github_action: "claude/requirements-review.yml"
     estimated_time: "1-2 hours"
     dependencies: []
 
   architecture:
     name: "Architecture Design"
-    prompt_template: "prompts/architecture_prompt.md"
-    output_file: "docs/architecture.md"
-    github_action: "architecture-review.yml"
+    prompt_template: "claude_code/pipeline/prompts/architecture_prompt.md"
+    output_file: "shared/docs/architecture.md"
+    github_action: "claude/architecture-review.yml"
     estimated_time: "2-3 hours"
     dependencies: ["requirements"]
 
   implementation:
     name: "Implementation Planning"
-    prompt_template: "prompts/implementation_prompt.md"
-    output_file: "docs/implementation.md"
-    github_action: "implementation-review.yml"
+    prompt_template: "claude_code/pipeline/prompts/implementation_prompt.md"
+    output_file: "shared/docs/implementation.md"
+    github_action: "claude/implementation-review.yml"
     estimated_time: "1-2 hours"
     dependencies: ["architecture"]
 
   coding:
     name: "Code Implementation"
-    prompt_template: "prompts/implementation_prompt.md"
-    output_directory: "src/"
-    github_action: "code-review.yml"
+    prompt_template: "claude_code/pipeline/prompts/implementation_prompt.md"
+    output_directory: "shared/src/"
+    github_action: "claude/code-review.yml"
     estimated_time: "varies"
     dependencies: ["implementation"]
 
   review:
     name: "Code Review"
-    prompt_template: "prompts/code_review_prompt.md"
-    output_file: "docs/code_review_report.md"
-    github_action: "final-review.yml"
+    prompt_template: "claude_code/pipeline/prompts/code_review_prompt.md"
+    output_file: "shared/docs/code_review_report.md"
+    github_action: "claude/final-review.yml"
     estimated_time: "1 hour"
     dependencies: ["coding"]
 
 # Git Configuration
 git:
   branch_naming:
-    pattern: "feature/{project-name}"
+    pattern: "claude/{project-name}"
     auto_create: true
   commit_messages:
     pattern: "{phase}: {description}"

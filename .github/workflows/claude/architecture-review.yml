@@ -3,13 +3,13 @@ name: Architecture Review
 on:
   push:
     paths:
-      - 'docs/architecture.md'
+      - 'shared/shared/docs/architecture.md'
     branches:
       - 'feature/**'
       - 'develop'
   pull_request:
     paths:
-      - 'docs/architecture.md'
+      - 'shared/shared/docs/architecture.md'
 
 jobs:
   validate-architecture:
@@ -33,18 +33,18 @@ jobs:
       - name: Validate Architecture Document
         id: validate
         run: |
-          python .github/review-scripts/architecture_checker.py docs/architecture.md docs/requirements.md
+          python .github/scripts/claude/architecture_checker.py shared/docs/architecture.md shared/docs/requirements.md
 
       - name: Check Architecture Diagrams
         run: |
-          if grep -q '\`\`\`mermaid' docs/architecture.md; then
+          if grep -q '\`\`\`mermaid' shared/docs/architecture.md; then
             echo "Validating Mermaid diagrams..."
-            python .github/review-scripts/diagram_validator.py docs/architecture.md
+            python .github/scripts/claude/diagram_validator.py shared/docs/architecture.md
           fi
 
       - name: Verify Requirements Alignment
         run: |
-          python .github/review-scripts/requirements_alignment.py docs/requirements.md docs/architecture.md
+          python .github/scripts/claude/requirements_alignment.py shared/docs/requirements.md shared/docs/architecture.md
 
       - name: Post Review Comments
         if: always()
@@ -59,8 +59,8 @@ jobs:
 
             if (context.payload.pull_request) {
               let comment = reviewOutput.passed
-                ? '✅ **Architecture Review Passed**\n\n'
-                : '❌ **Architecture Review Failed**\n\n';
+                ? '**Architecture Review: PASSED**\n\n'
+                : '**Architecture Review: FAILED**\n\n';
 
               if (reviewOutput.issues && reviewOutput.issues.length > 0) {
                 comment += '**Issues found:**\n';

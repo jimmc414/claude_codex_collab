@@ -1,0 +1,91 @@
+# Codex Pipeline Configuration
+# Main configuration file for the Codex development pipeline
+
+pipeline:
+  name: "Codex Development Pipeline"
+  version: "1.0.0"
+  description: "Systematic development workflow for Codex agent"
+
+# Pipeline Phases
+phases:
+  requirements:
+    name: "Requirements Gathering"
+    prompt_template: "codex/pipeline/prompts/requirements_gathering.md"
+    output_file: "shared/docs/requirements.md"
+    github_action: "codex/requirements-review.yml"
+    estimated_time: "1-2 hours"
+    dependencies: []
+
+  architecture:
+    name: "Architecture Design"
+    prompt_template: "codex/pipeline/prompts/architecture_prompt.md"
+    output_file: "shared/docs/architecture.md"
+    github_action: "codex/architecture-review.yml"
+    estimated_time: "2-3 hours"
+    dependencies: ["requirements"]
+
+  implementation:
+    name: "Implementation Planning"
+    prompt_template: "codex/pipeline/prompts/implementation_prompt.md"
+    output_file: "shared/docs/implementation.md"
+    github_action: "codex/implementation-review.yml"
+    estimated_time: "1-2 hours"
+    dependencies: ["architecture"]
+
+  coding:
+    name: "Code Implementation"
+    prompt_template: "codex/pipeline/prompts/implementation_prompt.md"
+    output_directory: "shared/src/"
+    github_action: "codex/code-review.yml"
+    estimated_time: "varies"
+    dependencies: ["implementation"]
+
+  review:
+    name: "Code Review"
+    prompt_template: "codex/pipeline/prompts/code_review_prompt.md"
+    output_file: "shared/docs/code_review_report.md"
+    github_action: "codex/final-review.yml"
+    estimated_time: "1 hour"
+    dependencies: ["coding"]
+
+# Git Configuration
+git:
+  branch_naming:
+    pattern: "codex/{project-name}"
+    auto_create: true
+  commit_messages:
+    pattern: "[Codex] {phase}: {description}"
+    include_emoji: false
+    sign_commits: false
+
+# Codex-specific settings
+codex:
+  model: "codex-latest"
+  interaction_style: "structured"
+  confirmation_required:
+    - before_commit: true
+    - before_push: true
+    - before_pr_create: true
+  auto_fix:
+    linting_issues: true
+    formatting_issues: true
+    simple_type_errors: true
+    failing_tests: false
+
+# Testing Configuration
+testing:
+  frameworks:
+    javascript: ["jest", "mocha"]
+    python: ["pytest", "unittest"]
+  coverage:
+    target: 80
+    fail_under: 60
+
+# Documentation Settings
+documentation:
+  auto_generate:
+    - api_docs: true
+    - readme_update: true
+  format:
+    style: "markdown"
+    include_examples: true

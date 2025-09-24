@@ -32,7 +32,7 @@ jobs:
 
       - name: Verify All Documents Present
         run: |
-          required_files=("docs/requirements.md" "docs/architecture.md" "docs/implementation.md")
+          required_files=("shared/docs/requirements.md" "shared/docs/architecture.md" "shared/docs/implementation.md")
           missing_files=()
           for file in "${required_files[@]}"; do
             if [ ! -f "$file" ]; then
@@ -46,10 +46,10 @@ jobs:
 
       - name: Generate Traceability Matrix
         run: |
-          python .github/review-scripts/traceability_matrix.py \
-            docs/requirements.md \
-            docs/architecture.md \
-            docs/implementation.md \
+          python .github/scripts/claude/traceability_matrix.py \
+            shared/docs/requirements.md \
+            shared/docs/architecture.md \
+            shared/docs/implementation.md \
             src/ > traceability_matrix.md
 
       - name: Run All Tests
@@ -63,15 +63,15 @@ jobs:
 
       - name: Check Requirements Coverage
         run: |
-          python .github/review-scripts/requirements_verification.py \
-            docs/requirements.md \
+          python .github/scripts/claude/requirements_verification.py \
+            shared/docs/requirements.md \
             src/ \
             test_results.xml > requirements_coverage.json
 
       - name: Validate Documentation Completeness
         run: |
-          python .github/review-scripts/documentation_checker.py \
-            docs/ \
+          python .github/scripts/claude/documentation_checker.py \
+            shared/docs/ \
             src/ > documentation_report.json
 
       - name: Performance Benchmark
@@ -83,7 +83,7 @@ jobs:
       - name: Calculate Quality Score
         id: quality
         run: |
-          python .github/review-scripts/quality_scorer.py \
+          python .github/scripts/claude/quality_scorer.py \
             requirements_coverage.json \
             documentation_report.json \
             test_results.xml > quality_score.json
@@ -93,7 +93,7 @@ jobs:
 
       - name: Generate Final Report
         run: |
-          python .github/review-scripts/final_report_generator.py \
+          python .github/scripts/claude/final_report_generator.py \
             quality_score.json \
             traceability_matrix.md \
             requirements_coverage.json \
@@ -110,15 +110,15 @@ jobs:
 
             const prNumber = context.payload.pull_request?.number || context.payload.inputs?.pr_number;
 
-            let comment = '# 🎯 Final Review Report\n\n';
+            let comment = '# Final Review Report\n\n';
             comment += `## Overall Quality Score: ${qualityScore.total_score}/100\n\n`;
 
             // Add status badges
             const badges = [];
-            if (qualityScore.requirements_coverage >= 90) badges.push('✅ Requirements');
-            if (qualityScore.test_coverage >= 80) badges.push('✅ Tests');
-            if (qualityScore.documentation_score >= 85) badges.push('✅ Documentation');
-            if (qualityScore.code_quality >= 85) badges.push('✅ Code Quality');
+            if (qualityScore.requirements_coverage >= 90) badges.push('**PASS** Requirements');
+            if (qualityScore.test_coverage >= 80) badges.push('**PASS** Tests');
+            if (qualityScore.documentation_score >= 85) badges.push('**PASS** Documentation');
+            if (qualityScore.code_quality >= 85) badges.push('**PASS** Code Quality');
 
             comment += badges.join(' | ') + '\n\n';
 
@@ -128,7 +128,7 @@ jobs:
             // Add traceability matrix as collapsible section
             if (fs.existsSync('traceability_matrix.md')) {
               const matrix = fs.readFileSync('traceability_matrix.md', 'utf8');
-              comment += '\n<details>\n<summary>📊 Traceability Matrix</summary>\n\n';
+              comment += '\n<details>\n<summary>**METRICS** Traceability Matrix</summary>\n\n';
               comment += matrix;
               comment += '\n</details>\n';
             }
@@ -136,10 +136,10 @@ jobs:
             // Approval recommendation
             const approved = qualityScore.total_score >= 85;
             if (approved) {
-              comment += '\n## ✅ Recommendation: APPROVED FOR MERGE\n';
+              comment += '\n## **PASS** Recommendation: APPROVED FOR MERGE\n';
               comment += 'All quality criteria have been met.\n';
             } else {
-              comment += '\n## ⚠️ Recommendation: NEEDS IMPROVEMENT\n';
+              comment += '\n## **WARNING** Recommendation: NEEDS IMPROVEMENT\n';
               comment += 'Please address the following before merging:\n';
               qualityScore.improvements.forEach(item => {
                 comment += `- ${item}\n`;
@@ -183,7 +183,7 @@ jobs:
                 repo: context.repo.repo,
                 pull_number: prNumber,
                 event: 'APPROVE',
-                body: '🤖 Auto-approved: All quality criteria exceeded expectations.'
+                body: '**BOT** Auto-approved: All quality criteria exceeded expectations.'
               });
             }
 
