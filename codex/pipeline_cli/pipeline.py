@@ -97,9 +97,40 @@ def command_init(args: argparse.Namespace, manager: StateManager) -> None:
             )
 
 
+def _require_initialized(manager: StateManager) -> None:
+    """Exit with a helpful message if the pipeline has not been initialized."""
+
+    try:
+        manager.ensure_initialized()
+    except RuntimeError as exc:
+        print(str(exc))
+        sys.exit(1)
+
+
+def _load_state(manager: StateManager) -> PipelineState:
+    """Load pipeline state, exiting with a friendly message on failure."""
+
+    _require_initialized(manager)
+    try:
+        return manager.load()
+    except RuntimeError as exc:  # Defensive: load also calls ensure_initialized
+        print(str(exc))
+        sys.exit(1)
+
+
+def _ensure_stage_order(state: PipelineState, stage_key: str) -> None:
+    """Validate stage progression order and exit cleanly on user error."""
+
+    try:
+        state.ensure_order(stage_key)
+    except RuntimeError as exc:
+        print(str(exc))
+        print("Complete the prerequisite stages before continuing.")
+        sys.exit(1)
+
+
 def command_status(manager: StateManager) -> None:
-    manager.ensure_initialized()
-    state = manager.load()
+    state = _load_state(manager)
     print(f"Project: {state.project_name}")
     print(f"Model:   {model_label(state.model)}")
     print(f"Concept: {state.concept}")
@@ -126,8 +157,7 @@ def command_status(manager: StateManager) -> None:
 
 
 def command_prompt(args: argparse.Namespace, manager: StateManager) -> None:
-    manager.ensure_initialized()
-    state = manager.load()
+    state = _load_state(manager)
     stage = get_stage(args.stage)
     label = model_label(state.model)
 
@@ -211,14 +241,13 @@ def _handle_auto_sync_result(
 
 
 def command_capture(args: argparse.Namespace, manager: StateManager) -> None:
-    manager.ensure_initialized()
-    state = manager.load()
+    state = _load_state(manager)
     stage = get_stage(args.stage)
     if not stage.artifact_path:
         print(f"Stage '{stage.key}' does not produce an artifact. Use the 'complete' command instead.")
         sys.exit(1)
 
-    state.ensure_order(stage.key)
+    _ensure_stage_order(state, stage.key)
 
     artifact_path = manager.root / stage.artifact_path
     artifact_path.parent.mkdir(parents=True, exist_ok=True)
@@ -268,8 +297,7 @@ def command_capture(args: argparse.Namespace, manager: StateManager) -> None:
 
 
 def command_complete(args: argparse.Namespace, manager: StateManager) -> None:
-    manager.ensure_initialized()
-    state = manager.load()
+    state = _load_state(manager)
     stage = get_stage(args.stage)
     if stage.artifact_path and not (manager.root / stage.artifact_path).exists():
         print(
@@ -324,8 +352,7 @@ def _resolve_checklist_item(stage, *, index: Optional[int], name: Optional[str])
 
 
 def command_checklist(args: argparse.Namespace, manager: StateManager) -> None:
-    manager.ensure_initialized()
-    state = manager.load()
+    state = _load_state(manager)
     stage = get_stage(args.stage)
     if not stage.ready_checklist:
         print(f"Stage '{stage.title}' does not have a ready checklist to manage.")
@@ -370,14 +397,13 @@ def command_checklist(args: argparse.Namespace, manager: StateManager) -> None:
 
 
 def command_reset(manager: StateManager) -> None:
-    manager.ensure_initialized()
+    _require_initialized(manager)
     manager.state_path.unlink()
     print("Pipeline state cleared. Re-run init to start again.")
 
 
 def command_github_configure(args: argparse.Namespace, manager: StateManager) -> None:
-    manager.ensure_initialized()
-    state = manager.load()
+    state = _load_state(manager)
 
     current = state.github
     desired_remote = args.remote or (current.remote if current else None)
@@ -420,8 +446,7 @@ def command_github_configure(args: argparse.Namespace, manager: StateManager) ->
 
 
 def command_github_feedback(args: argparse.Namespace, manager: StateManager) -> None:
-    manager.ensure_initialized()
-    state = manager.load()
+    state = _load_state(manager)
     if not state.github:
         print(
             "GitHub integration is not configured. Run 'python -m codex.pipeline_cli github configure --auto-sync'"
