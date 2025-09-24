@@ -16,7 +16,8 @@ echo "Creating GitHub repo: $repo_name"
 gh repo create "$repo_name" --public --source=. --remote=origin --push
 
 echo ""
-echo "✅ Repository created: https://github.com/$gh_user/$repo_name"
+echo "Repository created: https://github.com/$gh_user/$repo_name"
 echo ""
 echo "NEXT STEP: Run /install-github-app and enter: $gh_user/$repo_name"
 echo "$gh_user/$repo_name" > .github_repo
+```

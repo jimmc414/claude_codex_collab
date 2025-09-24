@@ -2,195 +2,107 @@
 
 ## Overview
 
-This pipeline provides a systematic approach to software development using Claude Code (Opus 4.1) with integrated GitHub Actions for continuous quality assurance. Each phase builds upon the previous one, with automated reviews and feedback loops at every step.
+This guide explains how to run the Claude Code development pipeline with GitHub Actions integration. The workflow is divided into sequential phases that build on one another, with automated checks at every step to maintain quality.
 
 ## Quick Start
 
 ### Prerequisites
 
-1. **Claude Code Setup**
-   - Ensure you're using Claude Code with Opus 4.1 model
-   - Have this repository cloned locally
-   - GitHub repository configured with Actions enabled
+1. Install Claude Code (Opus 4.1) version 1.0.120 or later
+2. Clone this repository locally
+3. Authenticate the GitHub CLI and ensure Actions are enabled for the target repository
 
-2. **Initial Setup**
-   ```bash
-   # Clone the repository
-   git clone https://github.com/yourusername/claude_codex_collab.git
-   cd claude_codex_collab
+### Initial Setup
 
-   # Ensure GitHub Actions are enabled
-   gh repo set-default
-   ```
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/claude_codex_collab.git
+cd claude_codex_collab
+
+# Set the default GitHub repository for CLI commands
+gh repo set-default
+```
 
 ## Pipeline Phases
 
 ### Phase 1: Requirements Gathering
 
-**Start the conversation with Claude:**
-```
-User: "I want to build a task management application"
-Claude: "Beginning requirements definition for your project. Reading the requirements gathering template to start the discussion."
-```
-
-Claude will:
-1. Read `claude_pipeline/prompts/requirements_gathering.md`
-2. Ask structured questions about your project
-3. Generate `docs/requirements.md` with RFC 2119 language
-4. Commit and push to a feature branch
-5. GitHub Action validates requirements automatically
-
-**What happens behind the scenes:**
-- `requirements-review.yml` runs validation checks
-- Feedback posted as PR comments
-- Claude reads feedback and iterates if needed
+- Review `claude_code/pipeline/prompts/requirements_gathering.md` to understand the information expected
+- Collect project overview, stakeholders, functional scope, non-functional criteria, and constraints
+- Capture the results in `docs/requirements.md` using RFC 2119 terminology and measurable acceptance criteria
+- GitHub Actions runs `requirements-review.yml` to validate structure and completeness
 
 ### Phase 2: Architecture Design
 
-**Continue with:**
-```
-User: "Now let's design the architecture"
-Claude: "Reading the requirements to create a comprehensive architecture design."
-```
-
-Claude will:
-1. Read `docs/requirements.md`
-2. Propose architecture patterns
-3. Create detailed `docs/architecture.md` with diagrams
-4. Push changes triggering architecture review
-5. Iterate based on GitHub Actions feedback
-
-**Architecture includes:**
-- System overview with Mermaid diagrams
-- Component design
-- Data models
-- API specifications
-- Security architecture
-- Deployment strategy
+- Study the approved requirements document
+- Design system components, interfaces, data flows, security measures, and infrastructure considerations
+- Document the architecture in `docs/architecture.md`, including diagrams where appropriate
+- Push updates to trigger the `architecture-review.yml` workflow for automated checks
 
 ### Phase 3: Implementation Planning
 
-**Proceed with:**
-```
-User: "Create the implementation plan"
-Claude: "Creating a detailed implementation plan based on the architecture."
-```
-
-Claude will:
-1. Analyze architecture components
-2. Create step-by-step `docs/implementation.md`
-3. Include code examples and instructions
-4. Define task breakdown and dependencies
-5. Push for automated review
-
-**Implementation plan contains:**
-- Setup instructions
-- Phased implementation approach
-- Code snippets for each component
-- Testing strategies
-- Troubleshooting guide
+- Translate the architecture into a practical plan covering prerequisites, task breakdown, code structure, and testing strategy
+- Record the plan in `docs/implementation.md` with detailed step-by-step guidance
+- Use `implementation-review.yml` to confirm coverage of critical tasks and traceability
 
 ### Phase 4: Code Implementation
 
-**Begin coding:**
-```
-User: "Start implementing the code"
-Claude: "Beginning implementation based on the plan. Using TodoWrite tool to track progress."
-```
-
-Claude will:
-1. Create project structure
-2. Implement components in logical order
-3. Write tests alongside code
-4. Commit incrementally
-5. Push changes triggering code review
-
-**Code review checks:**
-- Linting (ESLint, Pylint)
-- Type checking
-- Security scanning
-- Test coverage
-- Performance metrics
+- Build the project according to the implementation plan, committing logical increments to version control
+- Maintain alignment between code changes and documented requirements
+- Run local linters, tests, and security scans as you progress; GitHub Actions (`code-review.yml`) enforces quality gates
 
 ### Phase 5: Final Review
 
-**Complete the pipeline:**
-```
-User: "Run the final review"
-Claude: "Performing comprehensive review to ensure all requirements are met."
-```
+- Assemble traceability evidence linking requirements, architecture decisions, implementation tasks, and code artifacts
+- Verify that coverage, security, and performance thresholds are met
+- Use `final-review.yml` to confirm the pipeline is complete and ready for merge
 
-Claude will:
-1. Generate traceability matrix
-2. Verify all requirements are met
-3. Calculate quality score
-4. Create final review report
-5. Auto-approve PR if quality threshold met
+## Operating the Pipeline
 
-## Working with Claude Code
+### Starting New Work
 
-### Starting a New Project
-
-```markdown
-User: "Start new project: [project name]"
-Claude: *Creates feature branch*
-        *Reads requirements gathering prompt*
-        "Beginning requirements definition for [project name].
-         Let's begin with understanding what you're building."
-```
+1. Create a feature branch following the naming convention `claude/<feature-name>`
+2. Work through the phases in order, committing artifacts for each milestone
+3. Open a pull request once all required documents and code updates are ready
 
 ### Monitoring Progress
 
-```markdown
-User: "Show pipeline status"
-Claude: *Checks GitHub Actions status*
-        *Reviews PR comments*
-        "Current status:
-         [PASS] Requirements: Passed
-         [PASS] Architecture: Passed
-         [IN PROGRESS] Implementation: In Progress
-         [PENDING] Code Review: Pending
-         [PENDING] Final Review: Pending"
-```
+- View GitHub Actions status in the repository UI or via the CLI:
+  ```bash
+  gh workflow list
+  gh run list
+  gh run view <run-id>
+  ```
+- Inspect pull request comments for automated feedback and checklist items
 
 ### Handling Feedback
 
-When GitHub Actions post feedback:
-
-```markdown
-Claude: "The requirements review found issues:
-         - Missing acceptance criteria for FR-3
-         - NFR-2 lacks measurable metrics
-
-         Fixing these issues now..."
-*Updates requirements.md*
-*Pushes changes*
-"Fixed and pushed. Waiting for re-review..."
-```
+1. Review workflow logs to identify failing checks
+2. Update the relevant documentation or code files
+3. Commit and push changes to rerun the corresponding workflow
+4. Repeat until all checks succeed
 
 ## GitHub Actions Integration
 
-### Understanding the Workflow
+### Automated Execution Flow
 
-1. **Push triggers Action** →
-2. **Action runs validation** →
-3. **Results posted to PR** →
-4. **Claude reads feedback** →
-5. **Claude fixes issues** →
-6. **Repeat until passing**
+1. Push changes to a branch
+2. The corresponding workflow runs validation scripts
+3. Results appear in the pull request conversation and workflow logs
+4. Address findings and push updates until the workflow reports success
 
-### Manual Trigger
+### Manual Triggers
 
-You can manually trigger reviews:
+Use the GitHub CLI to run specific workflows when needed:
 
 ```bash
-# Trigger specific workflow
+# Trigger a workflow manually
 gh workflow run requirements-review.yml
 
 # View workflow status
-gh workflow view
+gh workflow view requirements-review.yml
 
-# Check PR comments
+# Review pull request comments
 gh pr view --comments
 ```
 
@@ -198,19 +110,19 @@ gh pr view --comments
 
 ### Customizing Thresholds
 
-Edit `claude_pipeline/config/readiness_criteria.yml`:
+Modify `claude_code/pipeline/config/readiness_criteria.yml` to adjust acceptance levels:
 
 ```yaml
 code_review:
   test_coverage:
-    minimum: 85  # Increase from 80
+    minimum: 85  # Increase from default of 80
   security:
-    max_high_risk: 0  # No high-risk issues allowed
+    max_high_risk: 0  # Block merges if any high-risk issues are detected
 ```
 
 ### Adding Custom Validators
 
-Create new validation script in `.github/review-scripts/`:
+Add scripts under `.github/review-scripts/` to extend validation:
 
 ```python
 #!/usr/bin/env python3
@@ -218,215 +130,76 @@ Create new validation script in `.github/review-scripts/`:
 import sys
 import json
 
+
 def validate(filepath):
-    # Your validation logic
+    # Implement custom validation logic
     return {"passed": True, "issues": []}
+
 
 if __name__ == "__main__":
     result = validate(sys.argv[1])
-    with open("custom_review.json", "w") as f:
-        json.dump(result, f)
+    with open("custom_review.json", "w", encoding="utf-8") as file:
+        json.dump(result, file)
 ```
 
 ## Best Practices
 
-### 1. Incremental Development
-- Complete each phase before moving to next
-- Don't skip validation steps
-- Address feedback immediately
-
-### 2. Clear Requirements
-- Be specific in requirements gathering
-- Use measurable criteria
-- Include edge cases
-
-### 3. Documentation
-- Keep all generated docs updated
-- Document decisions in architecture
-- Maintain traceability
-
-### 4. Testing
-- Write tests during implementation
-- Aim for >80% coverage
-- Include edge cases
-
-### 5. Review Iterations
-- Don't ignore warnings
-- Fix issues before proceeding
-- Use feedback to improve
+1. Complete each phase before advancing to the next to maintain traceability
+2. Use measurable language in requirements and plans
+3. Keep documentation synchronized with implementation
+4. Write tests alongside new code to maintain coverage targets
+5. Treat warnings in workflow logs as actionable items, not optional suggestions
 
 ## Common Commands
 
-### Working with Claude
-
-```markdown
-# Start new project
-"Let's build a [type] application"
-
-# Check status
-"What's the current pipeline status?"
-
-# Review specific phase
-"Show me the requirements review results"
-
-# Fix issues
-"Fix the issues found in code review"
-
-# Generate report
-"Create a summary of the entire pipeline"
-```
-
-### Git Commands Claude Uses
-
-```bash
-# Create feature branch
-git checkout -b feature/project-name
-
-# Incremental commits
-git add docs/requirements.md
-git commit -m "Requirements: Initial draft"
-git push -u origin feature/project-name
-
-# Create PR
-gh pr create --title "Feature: Project Name" --body "..."
-
-# Check PR status
-gh pr view --comments
-```
+- Start a new project: `git checkout -b claude/<feature-name>`
+- Check pipeline status: `gh run list`
+- Review workflow results: `gh run view <run-id>`
+- Address review items: edit the relevant files, commit, and push updates
+- Generate a pipeline summary: compile notes from workflow outputs and documentation updates
 
 ## Troubleshooting
 
-### Issue: GitHub Action Failing
+### Architecture Review Fails
+- Confirm that `docs/architecture.md` includes required diagrams and component descriptions
+- Verify that all requirements are mapped to architectural elements
 
-```markdown
-User: "The architecture review is failing"
-Claude: *Checks action logs*
-        "I see the issue - missing diagram in section 3.
-         Adding that now..."
-```
+### Low Test Coverage
+- Inspect coverage reports produced by the testing framework
+- Add unit or integration tests targeting untested functions and edge cases
 
-### Issue: Low Test Coverage
+### Ambiguous Requirements
+- Revisit stakeholder input and clarify acceptance criteria
+- Update `docs/requirements.md` with measurable targets and edge case coverage
 
-```markdown
-User: "Test coverage is only 65%"
-Claude: *Analyzes coverage report*
-        "Adding tests for uncovered functions:
-         - UserService.delete()
-         - AuthMiddleware.validate()
-         Implementing these tests..."
-```
+## Advanced Usage
 
-### Issue: Requirements Not Clear
-
-```markdown
-Claude: "The requirement 'system should be fast' is too vague.
-         Let's make it measurable:
-         'System SHALL respond to API requests within 200ms
-         for 95% of requests under normal load'"
-```
-
-## Advanced Features
-
-### Parallel Phase Execution
-
-For independent components:
-
-```markdown
-User: "Implement the frontend and backend in parallel"
-Claude: "I'll create separate implementation plans and work on both:
-         - Backend API (Node.js/Express)
-         - Frontend UI (React)
-         Using parallel GitHub Actions for review..."
-```
-
-### Custom Project Types
-
-```markdown
-User: "This is a Chrome extension project"
-Claude: "I'll adapt the pipeline for Chrome extension requirements:
-         - Manifest.json configuration
-         - Content script architecture
-         - Background service workers
-         - Chrome API integration"
-```
-
-### Multi-Repository Projects
-
-```markdown
-User: "This project spans multiple repositories"
-Claude: "I'll coordinate across repositories:
-         - Main application repo
-         - Shared libraries repo
-         - Infrastructure repo
-         Each with its own pipeline instance..."
-```
-
-## Example Complete Session
-
-```markdown
-User: "Let's build a URL shortener service"
-
-Claude: "Building a URL shortener using the development pipeline.
-         Starting with requirements gathering...
-
-         What's the expected daily traffic volume?"
-
-User: "About 10,000 URLs per day"
-
-Claude: "Who are the target users?"
-
-User: "Public users and registered users with analytics"
-
-[... continues through all phases ...]
-
-Claude: "Pipeline complete!
-         [COMPLETE] Requirements documented
-         [COMPLETE] Architecture designed
-         [COMPLETE] Implementation planned
-         [COMPLETE] Code implemented
-         [COMPLETE] All tests passing (92% coverage)
-         [COMPLETE] Quality score: 94/100
-
-         PR #47 has been auto-approved and is ready to merge."
-```
+- **Parallel Phase Execution**: For independent subsystems, maintain separate implementation plans and coordinate workflows for each component
+- **Custom Project Types**: Adapt templates for specialized domains (for example, browser extensions) by extending the relevant documentation sections
+- **Multi-Repository Initiatives**: Align multiple repositories by replicating the pipeline configuration and synchronizing milestones across teams
 
 ## Metrics and Reporting
 
 The pipeline tracks:
 - Time spent per phase
-- Number of review iterations
+- Review iteration counts
 - Test coverage trends
 - Quality score progression
-- Requirements completion rate
+- Requirements completion percentage
 
-Access metrics:
-```markdown
-User: "Show pipeline metrics"
-Claude: *Reads docs/pipeline_metrics.json*
-        "Pipeline Performance:
-         - Average time to completion: 2.5 days
-         - First-time pass rate: 78%
-         - Average quality score: 87/100"
+To review metrics stored in JSON outputs:
+
+```bash
+gh run download <run-id> --pattern "*metrics.json"
 ```
 
 ## Getting Help
 
-1. **Documentation Issues**
-   ```markdown
-   User: "Explain how the architecture review works"
-   Claude: *Explains the architecture review process*
-   ```
-
-2. **Pipeline Issues**
-   - Check GitHub Actions logs
-   - Review PR comments
-   - Examine validation scripts
-
-3. **Report Issues**
-   - https://github.com/anthropics/claude-code/issues
+1. Review the documentation in `claude_code/docs/`
+2. Check GitHub Actions logs for validation details
+3. Examine review scripts under `.github/` when diagnosing workflow behavior
+4. Report issues at https://github.com/anthropics/claude-code/issues
 
 ## Conclusion
 
-This pipeline ensures high-quality software development through systematic phases, automated reviews, and continuous feedback. Each phase builds on the previous one, creating a traceable path from requirements to deployment.
-
-Remember: The pipeline is a guide, not a rigid framework. Adapt it to your specific needs while maintaining the core principles of quality and traceability.
+Following this pipeline provides a consistent approach from requirements gathering through final review. Maintain updated documentation, respond promptly to workflow feedback, and iterate until every phase meets the configured acceptance criteria.

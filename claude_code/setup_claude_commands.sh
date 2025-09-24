@@ -33,15 +33,16 @@ for file in "$TARGET_DIR"/*.md; do
     if [ -f "$file" ]; then
         basename="${file##*/}"
         command="${basename%.md}"
-        echo "  /$command - $(grep -m 1 "description:" "$file" | sed 's/description: //')"
+        echo "  /$command - $(grep -m 1 \"description:\" \"$file\" | sed 's/description: //')"
     fi
+
 done
 
 # Verify installation
 echo ""
 echo "Verifying installation..."
 count=$(ls -1 "$TARGET_DIR"/*.md 2>/dev/null | wc -l)
-echo "✅ $count commands successfully installed in $TARGET_DIR"
+echo "$count commands successfully installed in $TARGET_DIR"
 
 echo ""
 echo "Available Claude Code commands:"
@@ -49,7 +50,7 @@ ls -la "$TARGET_DIR"
 
 echo ""
 echo "==================================="
-echo "Setup Complete!"
+echo "Setup Complete"
 echo "==================================="
 echo ""
 echo "To use these commands:"
