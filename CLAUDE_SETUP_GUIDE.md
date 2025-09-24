@@ -47,39 +47,39 @@ This project is configured with a complete Claude Code development environment i
 - Claude GitHub App configured for PR reviews
 - API token saved as `CLAUDE_CODE_OAUTH_TOKEN` secret
 
-## Workflow from Claude's Perspective
+## Workflow Overview
 
 ### Starting a New Project
-1. User runs `init` in terminal
-2. Claude Code launches in the project directory
-3. Claude has access to:
+1. Run `init` in the terminal.
+2. Claude Code launches in the project directory.
+3. The environment has access to:
    - All files in the current directory
    - Bash commands via `!` prefix
    - Git operations
    - Global commands in `~/.claude/commands/`
 
 ### Creating Files and Code
-Claude can:
-- Generate new files with `/generate` command
-- Edit existing files
-- Run tests and debug code
-- Execute bash commands with `!` prefix
-- Commit changes to git
+The environment supports:
+- Generating new files with the `/generate` command
+- Editing existing files
+- Running tests and debugging code
+- Executing bash commands with the `!` prefix
+- Committing changes to git
 
 ### GitHub Integration Workflow
-When user runs `/github`:
-1. Claude executes `gh-upload` function via shell
-2. Repository is created and code is pushed
-3. User is prompted to run `/install-github-app`
-4. GitHub Actions workflow is set up
-5. Claude can now:
+When `/github` runs:
+1. The `gh-upload` function executes via the shell.
+2. A repository is created and code is pushed.
+3. The workflow prompts for `/install-github-app`.
+4. GitHub Actions automation is configured.
+5. Claude Code can then:
    - Create pull requests
    - Run tests via GitHub Actions
    - Provide PR reviews
    - Suggest improvements
 
 ### Continuous Development
-Claude assists with:
+Use Claude Code for:
 - Code refactoring and optimization
 - Bug fixes and debugging
 - Documentation generation
@@ -160,9 +160,9 @@ Note: Some commands may use /shell instead of ! depending on context
 3. Keep project dependencies in virtual environments
 
 ### Git Workflow
-1. Let Claude handle commit messages for consistency
+1. Use the provided command set to keep commit messages consistent
 2. Use descriptive PR titles
-3. Allow Claude to review PRs before merging
+3. Run pull request reviews through the configured Claude Code workflows before merging
 
 ### Security
 - GitHub OAuth token is stored securely as GitHub secret
@@ -170,7 +170,7 @@ Note: Some commands may use /shell instead of ! depending on context
 - Use private repos for sensitive projects
 
 ### Tips for Claude Code
-1. Be specific in requests - treat Claude like a senior developer
+1. Provide specific requests to obtain detailed responses
 2. Use `/status` to verify setup before major operations
 3. Review generated code before committing
 4. Use `/test` frequently to catch issues early
@@ -205,11 +205,11 @@ The following are configured:
 
 ## Next Steps
 1. Create new projects with `init`
-2. Use Claude for development assistance
+2. Use Claude Code for development workflows
 3. Push to GitHub with `/github`
 4. Sync changes with `/pull` and `/push`
-5. Let Claude handle PR reviews
-6. Iterate and improve with AI assistance
+5. Run PR reviews through the configured workflows
+6. Iterate and improve with the available automation
 
 ---
 
