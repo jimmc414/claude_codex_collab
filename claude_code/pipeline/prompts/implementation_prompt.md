@@ -1,8 +1,8 @@
 # Implementation Plan Prompt Template
 
-## Instructions for Claude
+## How to Use This Template
 
-Create a detailed, actionable implementation plan based on the architecture document that serves as a standalone resource for developers.
+Use this template to create a detailed, actionable implementation plan based on the architecture document that serves as a standalone resource for developers.
 
 ## Phase 1: Prerequisites Analysis
 
