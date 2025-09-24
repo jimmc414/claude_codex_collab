@@ -1,95 +1,87 @@
-# Claude Codex Collab - Dual Agent Development Pipeline
+# Claude Codex Collab - Dual Workflow Development Pipeline
 
-This repository implements a systematic development pipeline using two agents: Claude Code and Codex.
+This repository implements a structured development pipeline with two automation tracks: Claude Code and Codex. Each track includes configuration, commands, and documentation for running a repeatable software delivery process with GitHub Actions integration.
 
 ## Repository Structure
 
 ```
 /
-├── claude_code/        # Claude Code agent implementation
+├── claude_code/        # Claude Code workflow implementation
 │   ├── pipeline/       # Claude-specific pipeline configuration
-│   ├── commands/       # Claude slash commands
-│   └── docs/          # Claude documentation
+│   ├── commands/       # Claude command definitions
+│   └── docs/           # Claude documentation
 │
-├── codex/             # Codex agent implementation
+├── codex/              # Codex workflow implementation
 │   ├── pipeline/       # Codex-specific pipeline configuration
 │   ├── commands/       # Codex commands
-│   └── docs/          # Codex documentation
+│   └── docs/           # Codex documentation
 │
-├── shared/            # Shared resources between agents
-│   ├── docs/          # Generated project documentation
-│   ├── src/           # Generated source code
-│   └── utils/         # Shared utilities
+├── shared/             # Shared resources between workflows
+│   ├── docs/           # Generated project documentation
+│   ├── src/            # Generated source code
+│   └── utils/          # Shared utilities
 │
-└── .github/           # GitHub Actions workflows
+└── .github/            # GitHub Actions workflows
     ├── workflows/
-    │   ├── claude/    # Claude-specific workflows
-    │   └── codex/     # Codex-specific workflows
+    │   ├── claude/     # Claude-specific workflows
+    │   └── codex/      # Codex workflows
     └── scripts/
-        ├── claude/    # Claude validation scripts
-        └── codex/     # Codex validation scripts
+        ├── claude/     # Claude validation scripts
+        └── codex/      # Codex validation scripts
 ```
 
 ## Quick Start
 
-### Using Claude Code
+### Claude Code Track
 
-1. Navigate to Claude Code documentation:
+1. Navigate to the Claude Code documentation:
    ```bash
    cd claude_code
    cat docs/PIPELINE_USAGE_GUIDE.md
    ```
-
-2. Start a new project:
+2. Review the setup guide for local environment details:
+   ```bash
+   cat docs/CLAUDE_SETUP_GUIDE.md
    ```
-   "Let's build a [project type] using Claude pipeline"
-   ```
+3. Follow the usage guide to work through the requirements, architecture, implementation planning, coding, and review phases.
 
-3. The pipeline proceeds through:
-   - Requirements gathering
-   - Architecture design
-   - Implementation planning
-   - Code generation
-   - Automated review cycles
+### Codex Track
 
-### Using Codex
-
-1. Navigate to Codex documentation:
+1. Review the Codex documentation:
    ```bash
    cd codex
    cat README.md
    ```
-
-2. [Codex implementation details to be added]
+2. Complete the workflow configuration steps documented in the Codex directory as they become available.
 
 ## Pipeline Workflow
 
-Both agents follow this systematic approach:
+Both tracks follow the same progression:
 
-1. **Requirements Gathering** → Generate `shared/docs/requirements.md`
-2. **Architecture Design** → Create `shared/docs/architecture.md`
-3. **Implementation Planning** → Produce `shared/docs/implementation.md`
-4. **Code Implementation** → Build in `shared/src/`
-5. **Review & Iteration** → Continuous feedback via GitHub Actions
+1. **Requirements Gathering** – Produce `shared/docs/requirements.md`
+2. **Architecture Design** – Create `shared/docs/architecture.md`
+3. **Implementation Planning** – Produce `shared/docs/implementation.md`
+4. **Code Implementation** – Build project assets in `shared/src/`
+5. **Review & Iteration** – Run GitHub Actions and address feedback until all checks pass
 
 ## Key Features
 
-- **Dual Agent Support**: Use Claude Code or Codex based on your needs
-- **GitHub Actions Integration**: Automated review at each pipeline phase
-- **Shared Resources**: Both agents can work on the same project
-- **Quality Gates**: Configurable thresholds for each phase
-- **Traceability**: Requirements tracked through implementation
-- **Continuous Feedback**: Real-time validation and iteration
+- **Dual Workflow Support**: Choose between Claude Code and Codex configurations
+- **GitHub Actions Integration**: Automated validation at each pipeline phase
+- **Shared Resources**: Centralized documentation and source directories
+- **Quality Gates**: Configurable acceptance thresholds
+- **Traceability**: Requirements tracked through to implementation
+- **Continuous Feedback**: Automated review loops for every stage
 
 ## Naming Conventions
 
-### Claude Code
+### Claude Code Track
 - Branches: `claude/feature-name`
 - PR Labels: `claude-code`
 - Workflows: `claude-*.yml`
 - Config prefix: `claude_`
 
-### Codex
+### Codex Track
 - Branches: `codex/feature-name`
 - PR Labels: `codex`
 - Workflows: `codex-*.yml`
@@ -99,16 +91,16 @@ Both agents follow this systematic approach:
 
 ### Claude Workflows
 Located in `.github/workflows/claude/`:
-- `requirements-review.yml` - Validates requirements documents
-- `architecture-review.yml` - Reviews architecture designs
-- `implementation-review.yml` - Checks implementation plans
-- `code-review.yml` - Performs code quality checks
-- `final-review.yml` - Comprehensive final validation
+- `requirements-review.yml` – Validates requirements documents
+- `architecture-review.yml` – Reviews architecture designs
+- `implementation-review.yml` – Checks implementation plans
+- `code-review.yml` – Performs code quality checks
+- `final-review.yml` – Runs comprehensive validation
 
 ### Codex Workflows
 Located in `.github/workflows/codex/`:
-- `codex-pipeline.yml` - Main Codex pipeline (template)
-- [Additional workflows to be implemented]
+- `codex-pipeline.yml` – Main Codex pipeline (template)
+- Additional workflows will be added as the track is expanded
 
 ## Configuration
 
@@ -118,25 +110,24 @@ Located in `.github/workflows/codex/`:
 
 ### Codex Configuration
 - Pipeline: `codex/pipeline/config/pipeline_config.yml`
-- [Additional configs to be added]
+- Additional configuration files to be documented in future updates
 
 ## Documentation
 
-- **Claude Code Guide**: `claude_code/docs/PIPELINE_USAGE_GUIDE.md`
-- **Claude Setup**: `claude_code/docs/CLAUDE_SETUP_GUIDE.md`
-- **Codex Guide**: `codex/README.md`
+- `claude_code/docs/PIPELINE_USAGE_GUIDE.md`
+- `claude_code/docs/CLAUDE_SETUP_GUIDE.md`
+- `codex/README.md`
 
 ## Contributing
 
-When contributing, please:
-1. Use the appropriate agent directory
-2. Follow the naming conventions
-3. Update relevant documentation
-4. Ensure GitHub Actions pass
+1. Use the appropriate workflow directory for your changes
+2. Follow the naming conventions for branches and pull requests
+3. Update documentation as part of any change
+4. Ensure GitHub Actions checks pass before requesting a review
 
 ## Metrics
 
-Both pipelines track:
+Both tracks monitor:
 - Requirements coverage
 - Test coverage
 - Code quality scores
@@ -150,8 +141,4 @@ Both pipelines track:
 
 ## License
 
-[License information to be added]
-
----
-
-This repository demonstrates a systematic approach to software development using multiple agents.
+License details will be added when available.

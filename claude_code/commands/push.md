@@ -6,7 +6,7 @@ Execute the git push process:
 ```bash
 # Check if there are changes to commit
 if git diff --quiet && git diff --cached --quiet && [ -z "$(git ls-files --others --exclude-standard)" ]; then
-    echo "✅ No changes to push. Repository is up to date."
+    echo "No changes to push. Repository is up to date."
 else
     # Add all changes
     git add .
@@ -18,6 +18,6 @@ else
     git commit -m "$commit_msg"
     git push
 
-    echo "✅ Successfully pushed changes to GitHub!"
+    echo "Successfully pushed changes to GitHub."
 fi
 ```
