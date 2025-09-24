@@ -1,8 +1,8 @@
 # Architecture Design Prompt Template
 
-## Instructions for Claude
+## How to Use This Template
 
-Read the requirements document and design a comprehensive architecture that addresses all requirements while following best practices.
+Use this template to read the requirements document and design a comprehensive architecture that addresses all requirements while following best practices.
 
 ## Phase 1: Analysis
 

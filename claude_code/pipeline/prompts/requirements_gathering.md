@@ -1,8 +1,8 @@
 # Requirements Gathering Prompt Template
 
-## Instructions for Claude
+## How to Use This Template
 
-You are gathering requirements for a new software project. Follow these steps systematically to ensure comprehensive requirements documentation.
+Use this template to gather requirements for a new software project. Follow these steps systematically to ensure comprehensive requirements documentation.
 
 ## Phase 1: Initial Understanding
 

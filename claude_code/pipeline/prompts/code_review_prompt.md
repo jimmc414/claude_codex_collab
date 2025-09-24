@@ -1,8 +1,8 @@
 # Code Review Prompt Template
 
-## Instructions for Claude
+## How to Use This Template
 
-Perform a comprehensive code review based on implementation requirements and best practices.
+Use this template to perform a comprehensive code review based on implementation requirements and best practices.
 
 ## Review Phases
 
@@ -77,7 +77,7 @@ Run and analyze results from:
 
 ## Summary
 - **Review Date**: [Date]
-- **Reviewer**: Claude AI
+- **Reviewer**: [Name]
 - **Project**: [Project Name]
 - **Branch**: [Branch Name]
 - **Overall Status**: [PASS/FAIL/NEEDS_IMPROVEMENT]
@@ -135,8 +135,8 @@ Run and analyze results from:
 
 | Requirement | Status | Implementation | Notes |
 |-------------|--------|---------------|-------|
-| FR-1 | ✅ | src/feature.js:45 | Fully implemented |
-| FR-2 | ⚠️ | src/other.js:12 | Partially complete |
+| FR-1 | Complete | src/feature.js:45 | Fully implemented |
+| FR-2 | Needs attention | src/other.js:12 | Partially complete |
 
 ## Performance Metrics
 
