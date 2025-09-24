@@ -1,0 +1,114 @@
+# Readiness Criteria Configuration
+# Defines pass/fail thresholds for each pipeline phase
+
+requirements:
+  readiness_threshold: 95  # Percentage of completeness required
+  required_sections:
+    - functional_requirements
+    - non_functional_requirements
+    - constraints
+    - assumptions
+    - acceptance_criteria
+  validation_rules:
+    - no_placeholders  # No TBD, TODO, etc.
+    - rfc2119_keywords  # Must use SHALL, MUST, etc.
+    - measurable_criteria  # All requirements must be testable
+    - unique_ids  # All requirement IDs must be unique
+  min_requirements: 5  # Minimum number of requirements
+
+architecture:
+  readiness_threshold: 90
+  required_sections:
+    - system_overview
+    - component_design
+    - data_model
+    - api_design
+    - security_architecture
+    - deployment_architecture
+    - technology_stack
+  validation_rules:
+    - has_diagrams  # Must include architecture diagrams
+    - pattern_defined  # Must specify architecture pattern
+    - requirements_mapped  # All requirements must be addressed
+  requirements_coverage: 85  # Minimum percentage of requirements covered
+
+implementation:
+  readiness_threshold: 90
+  required_sections:
+    - prerequisites
+    - project_setup
+    - implementation_phases
+    - testing_strategy
+    - deployment_preparation
+  validation_rules:
+    - code_examples  # Must include code snippets
+    - step_by_step  # Clear sequential instructions
+    - dependencies_defined  # All dependencies listed
+  architecture_coverage: 90  # Minimum percentage of architecture covered
+
+code_review:
+  automated_checks:
+    linting:
+      max_errors: 0
+      max_warnings: 10
+    type_checking:
+      max_errors: 0
+    security:
+      max_high_risk: 0
+      max_medium_risk: 3
+      max_low_risk: 10
+    test_coverage:
+      minimum: 80  # Percentage
+      branch_minimum: 75  # Percentage
+  manual_review:
+    requirements_met: 100  # All requirements must be implemented
+    critical_bugs: 0  # No critical bugs allowed
+    major_bugs: 2  # Maximum major bugs
+    documentation_complete: true
+
+final_review:
+  overall_quality_threshold: 85  # Minimum quality score
+  requirements_coverage: 95
+  test_coverage: 80
+  documentation_score: 85
+  code_quality: 85
+  auto_approve_threshold: 90  # Score for automatic approval
+  merge_requirements:
+    - all_checks_passed
+    - requirements_traced
+    - tests_passing
+    - documentation_complete
+    - security_scan_clean
+
+# GitHub Actions Configuration
+github_actions:
+  fail_fast: false  # Continue running even if one check fails
+  parallel_jobs: true
+  timeout_minutes: 30
+  retry_on_failure: 1  # Number of retries
+
+# Notification Settings
+notifications:
+  on_failure: true
+  on_success: false
+  channels:
+    - pr_comments
+    - status_checks
+
+# Quality Gates
+quality_gates:
+  phase_1_requirements:
+    blocking: true
+    auto_fix: false
+  phase_2_architecture:
+    blocking: true
+    auto_fix: false
+  phase_3_implementation:
+    blocking: false
+    auto_fix: true
+  phase_4_code:
+    blocking: true
+    auto_fix: true
+  phase_5_final:
+    blocking: true
+    auto_fix: false

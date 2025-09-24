@@ -1,0 +1,75 @@
+name: Requirements Review
+
+on:
+  push:
+    paths:
+      - 'docs/requirements.md'
+    branches:
+      - 'feature/**'
+      - 'develop'
+  pull_request:
+    paths:
+      - 'docs/requirements.md'
+
+jobs:
+  validate-requirements:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install pyyaml markdown
+
+      - name: Validate Requirements Document
+        id: validate
+        run: |
+          python .github/review-scripts/requirements_validator.py docs/requirements.md
+
+      - name: Post Review Comments
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const fs = require('fs');
+            const reviewOutput = fs.existsSync('review_output.json')
+              ? JSON.parse(fs.readFileSync('review_output.json', 'utf8'))
+              : { passed: false, issues: ['Review script did not generate output'] };
+
+            if (context.payload.pull_request) {
+              const comment = reviewOutput.passed
+                ? '✅ **Requirements Review Passed**\n\nAll requirements criteria met.'
+                : `❌ **Requirements Review Failed**\n\n**Issues found:**\n${reviewOutput.issues.map(i => `- ${i}`).join('\n')}`;
+
+              await github.rest.issues.createComment({
+                issue_number: context.payload.pull_request.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            }
+
+            if (!reviewOutput.passed) {
+              core.setFailed('Requirements validation failed');
+            }
+
+      - name: Check Requirements Coverage
+        run: |
+          python .github/review-scripts/requirements_coverage.py docs/requirements.md
+
+      - name: Generate Requirements Report
+        if: success()
+        run: |
+          echo "## Requirements Validation Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f requirements_report.md ]; then
+            cat requirements_report.md >> $GITHUB_STEP_SUMMARY
+          fi

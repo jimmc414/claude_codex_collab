@@ -1,0 +1,211 @@
+name: Code Review
+
+on:
+  push:
+    paths:
+      - 'src/**'
+      - '*.py'
+      - '*.js'
+      - '*.ts'
+      - '*.jsx'
+      - '*.tsx'
+    branches:
+      - 'feature/**'
+      - 'develop'
+  pull_request:
+    paths:
+      - 'src/**'
+      - '*.py'
+      - '*.js'
+      - '*.ts'
+      - '*.jsx'
+      - '*.tsx'
+
+jobs:
+  code-quality:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Python dependencies
+        run: |
+          pip install pylint black mypy pytest pytest-cov bandit
+
+      - name: Install Node dependencies
+        if: hashFiles('package.json') != ''
+        run: |
+          npm ci || npm install
+
+      - name: Python Linting
+        if: always()
+        run: |
+          find . -name "*.py" -not -path "./.github/*" | xargs -r pylint --output-format=json > pylint_report.json || true
+          python .github/review-scripts/format_lint_report.py pylint_report.json
+
+      - name: Python Formatting Check
+        if: always()
+        run: |
+          black --check --diff . 2>&1 | tee black_report.txt || true
+
+      - name: Python Type Checking
+        if: always()
+        run: |
+          mypy . --ignore-missing-imports --json-report mypy_report || true
+
+      - name: JavaScript/TypeScript Linting
+        if: always() && hashFiles('package.json') != ''
+        run: |
+          npm run lint || npx eslint . --format json > eslint_report.json || true
+
+      - name: Run Tests
+        if: always()
+        run: |
+          if [ -f "pytest.ini" ] || [ -f "setup.cfg" ] || [ -f "pyproject.toml" ]; then
+            pytest --cov=. --cov-report=json --cov-report=term || true
+          fi
+          if [ -f "package.json" ] && grep -q "\"test\"" package.json; then
+            npm test -- --coverage || true
+          fi
+
+      - name: Security Scan
+        if: always()
+        run: |
+          bandit -r . -f json -o bandit_report.json || true
+          if [ -f "package.json" ]; then
+            npx audit-ci --config .audit-ci.json || true
+          fi
+
+      - name: Check Implementation Alignment
+        run: |
+          python .github/review-scripts/code_alignment.py docs/implementation.md src/
+
+      - name: Generate Code Metrics
+        run: |
+          python .github/review-scripts/code_metrics.py src/ > metrics_report.json
+
+      - name: Post Review Comments
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const fs = require('fs');
+            let comment = '## 🔍 Code Review Report\n\n';
+            let hasFailures = false;
+
+            // Linting Results
+            if (fs.existsSync('lint_summary.json')) {
+              const lintSummary = JSON.parse(fs.readFileSync('lint_summary.json', 'utf8'));
+              if (lintSummary.issues > 0) {
+                comment += `### ⚠️ Linting Issues: ${lintSummary.issues}\n`;
+                comment += lintSummary.details.slice(0, 10).map(d => `- ${d}`).join('\n') + '\n\n';
+                hasFailures = true;
+              } else {
+                comment += '### ✅ Linting: Passed\n\n';
+              }
+            }
+
+            // Formatting Results
+            if (fs.existsSync('black_report.txt')) {
+              const blackReport = fs.readFileSync('black_report.txt', 'utf8');
+              if (blackReport.includes('would be reformatted')) {
+                comment += '### ⚠️ Formatting Issues Found\n';
+                comment += 'Run `black .` to fix formatting\n\n';
+                hasFailures = true;
+              } else {
+                comment += '### ✅ Formatting: Passed\n\n';
+              }
+            }
+
+            // Type Checking Results
+            if (fs.existsSync('mypy_report/index.json')) {
+              const mypyReport = JSON.parse(fs.readFileSync('mypy_report/index.json', 'utf8'));
+              if (mypyReport.errors > 0) {
+                comment += `### ⚠️ Type Errors: ${mypyReport.errors}\n\n`;
+                hasFailures = true;
+              } else {
+                comment += '### ✅ Type Checking: Passed\n\n';
+              }
+            }
+
+            // Test Coverage
+            if (fs.existsSync('coverage.json')) {
+              const coverage = JSON.parse(fs.readFileSync('coverage.json', 'utf8'));
+              const percent = coverage.totals.percent_covered;
+              const emoji = percent >= 80 ? '✅' : percent >= 60 ? '⚠️' : '❌';
+              comment += `### ${emoji} Test Coverage: ${percent.toFixed(1)}%\n\n`;
+              if (percent < 80) {
+                hasFailures = true;
+              }
+            }
+
+            // Security Issues
+            if (fs.existsSync('bandit_report.json')) {
+              const banditReport = JSON.parse(fs.readFileSync('bandit_report.json', 'utf8'));
+              if (banditReport.results.length > 0) {
+                comment += `### 🔒 Security Issues: ${banditReport.results.length}\n`;
+                banditReport.results.slice(0, 5).forEach(r => {
+                  comment += `- ${r.issue_text} (${r.severity})\n`;
+                });
+                comment += '\n';
+                if (banditReport.results.some(r => r.severity === 'HIGH')) {
+                  hasFailures = true;
+                }
+              } else {
+                comment += '### ✅ Security: No issues found\n\n';
+              }
+            }
+
+            // Code Metrics
+            if (fs.existsSync('metrics_report.json')) {
+              const metrics = JSON.parse(fs.readFileSync('metrics_report.json', 'utf8'));
+              comment += '### 📊 Code Metrics\n';
+              comment += `- Lines of Code: ${metrics.loc}\n`;
+              comment += `- Cyclomatic Complexity: ${metrics.complexity}\n`;
+              comment += `- Maintainability Index: ${metrics.maintainability}\n\n`;
+            }
+
+            // Implementation Alignment
+            if (fs.existsSync('alignment_report.json')) {
+              const alignment = JSON.parse(fs.readFileSync('alignment_report.json', 'utf8'));
+              comment += `### 📋 Implementation Alignment: ${alignment.percentage}%\n`;
+              if (alignment.missing.length > 0) {
+                comment += 'Missing implementations:\n';
+                comment += alignment.missing.map(m => `- ${m}`).join('\n') + '\n';
+              }
+              comment += '\n';
+            }
+
+            if (context.payload.pull_request) {
+              await github.rest.issues.createComment({
+                issue_number: context.payload.pull_request.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            }
+
+            if (hasFailures) {
+              core.setFailed('Code review found issues that need to be addressed');
+            }
+
+      - name: Suggest Fixes
+        if: failure() && github.event_name == 'pull_request'
+        uses: reviewdog/action-suggester@v1
+        with:
+          tool_name: 'Code Review Bot'
+          fail_on_error: false

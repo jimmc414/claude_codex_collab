@@ -1,0 +1,98 @@
+name: Architecture Review
+
+on:
+  push:
+    paths:
+      - 'docs/architecture.md'
+    branches:
+      - 'feature/**'
+      - 'develop'
+  pull_request:
+    paths:
+      - 'docs/architecture.md'
+
+jobs:
+  validate-architecture:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install pyyaml markdown mermaid-cli plantuml
+
+      - name: Validate Architecture Document
+        id: validate
+        run: |
+          python .github/review-scripts/architecture_checker.py docs/architecture.md docs/requirements.md
+
+      - name: Check Architecture Diagrams
+        run: |
+          if grep -q '\`\`\`mermaid' docs/architecture.md; then
+            echo "Validating Mermaid diagrams..."
+            python .github/review-scripts/diagram_validator.py docs/architecture.md
+          fi
+
+      - name: Verify Requirements Alignment
+        run: |
+          python .github/review-scripts/requirements_alignment.py docs/requirements.md docs/architecture.md
+
+      - name: Post Review Comments
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const fs = require('fs');
+            const reviewOutput = fs.existsSync('architecture_review.json')
+              ? JSON.parse(fs.readFileSync('architecture_review.json', 'utf8'))
+              : { passed: false, issues: ['Architecture review script did not generate output'] };
+
+            if (context.payload.pull_request) {
+              let comment = reviewOutput.passed
+                ? '✅ **Architecture Review Passed**\n\n'
+                : '❌ **Architecture Review Failed**\n\n';
+
+              if (reviewOutput.issues && reviewOutput.issues.length > 0) {
+                comment += '**Issues found:**\n';
+                comment += reviewOutput.issues.map(i => `- ${i}`).join('\n');
+              }
+
+              if (reviewOutput.suggestions && reviewOutput.suggestions.length > 0) {
+                comment += '\n\n**Suggestions:**\n';
+                comment += reviewOutput.suggestions.map(s => `- ${s}`).join('\n');
+              }
+
+              if (reviewOutput.alignment) {
+                comment += `\n\n**Requirements Alignment:** ${reviewOutput.alignment}%`;
+              }
+
+              await github.rest.issues.createComment({
+                issue_number: context.payload.pull_request.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            }
+
+            if (!reviewOutput.passed) {
+              core.setFailed('Architecture validation failed');
+            }
+
+      - name: Generate Architecture Report
+        if: success()
+        run: |
+          echo "## Architecture Validation Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f architecture_report.md ]; then
+            cat architecture_report.md >> $GITHUB_STEP_SUMMARY
+          fi
